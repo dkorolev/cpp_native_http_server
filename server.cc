@@ -13,7 +13,7 @@ const int kPort = 8080;
 const int kMaxQueuedConnections = 1024;
 const int kMaxInputPacketSize = 1024 * 1024;
 
-const char* kMagic = "\r\n\r\n";  // TODO(dkorolev): Go through the RFC for HTTP and confirm this magic.
+const char* kHeadBodySeparator = "\r\n\r\n";  // TODO(dkorolev): Go through the RFC for HTTP and confirm this magic.
 
 int main() {
   const int sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -64,9 +64,9 @@ int main() {
     }
     buffer[length] = '\0';
 
-    const char* data = strstr(buffer, kMagic);
+    const char* data = strstr(buffer, kHeadBodySeparator);
     if (data) {
-      data += strlen(kMagic);
+      data += strlen(kHeadBodySeparator);
       if (!*data) {
         data = nullptr;
       }
