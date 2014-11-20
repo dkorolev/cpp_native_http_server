@@ -3,6 +3,7 @@
 
 #include "exceptions.h"
 
+#include <cassert>
 #include <cstring>
 #include <string>
 #include <utility>
@@ -45,6 +46,7 @@ class GenericConnection {
   }
 
   void BlockingWrite(const void* buffer, size_t write_length) {
+    assert(buffer);
     const int result = write(fd_, buffer, write_length);
     if (result < 0) {
       throw SocketWriteException();
@@ -54,6 +56,7 @@ class GenericConnection {
   }
 
   void BlockingWrite(const char* s) {
+    assert(s);
     BlockingWrite(s, strlen(s));
   }
 
