@@ -7,7 +7,7 @@ An HTTP server in pure C++ with no external dependencies, including boost et. al
 In one terminal:
 
 ```
-make && ./build/server
+make && ./build/simplest_server
 ```
 
 In another terminal:
