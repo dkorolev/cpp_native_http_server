@@ -87,6 +87,10 @@ class Connection final : public GenericConnection {
   }
 };
 
+enum class HTTPResponseCode : uint16_t {
+  OK = 200,
+};
+
 // TODO(dkorolev): Parse the requested URL as well, not just the body.
 class HTTPConnection final : public GenericConnection {
  public:
@@ -98,11 +102,54 @@ class HTTPConnection final : public GenericConnection {
     ParseHTTPHeaders();
   }
 
-  const std::string& Body() const {
-    return body_;
+  const std::string& Method() const {
+    // TODO(dkorolev): Implement it.
+    return method_;
   }
 
- protected:
+  const std::string& URL() const {
+    // TODO(dkorolev): Implement it.
+    return url_;
+  }
+
+  const bool HasBody() const {
+    return has_body_;
+  }
+
+  const std::string& Body() const {
+    if (has_body_) {
+      return body_;
+    } else {
+      throw HTTPNoBodyProvidedException();
+    }
+  }
+
+  template <typename T>
+  typename std::enable_if<sizeof(typename T::value_type) == 1>::type
+  SendHTTPResponse(const T& begin, const T& end, HTTPResponseCode code = HTTPResponseCode::OK) {
+    if (responded_) {
+      throw HTTPAttemptedToRespondTwiceException();
+    }
+    responded_ = true;
+    // TODO(dkorolev): Send HTTP headers.
+    BlockingWrite(begin, end);
+  }
+
+  template <typename T>
+  typename std::enable_if<sizeof(typename T::value_type) == 1>::type SendHTTPResponse(
+      const T& container,
+      HTTPResponseCode code = HTTPResponseCode::OK) {
+    SendHTTPResponse(container.begin(), container.end(), code);
+  }
+
+ private:
+  std::string method_;
+  std::string url_;
+  bool has_body_ = false;
+  std::string body_;
+
+  bool responded_ = false;
+
   void ParseHTTPHeaders() {
     std::vector<char> header(kInitialHTTPHeaderSize);
     size_t size = 0;
@@ -116,14 +163,11 @@ class HTTPConnection final : public GenericConnection {
     if (data) {
       data += strlen(kHTTPHeadBodySeparator);
       if (*data) {
+        has_body_ = true;
         body_ = data;
       }
     }
   }
-
- private:
-  std::string body_;
-
   HTTPConnection(const HTTPConnection&) = delete;
   void operator=(const HTTPConnection&) = delete;
   void operator=(HTTPConnection&&) = delete;
