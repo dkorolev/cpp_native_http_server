@@ -23,9 +23,6 @@ const char* kHTTPHeadBodySeparator = "\r\n\r\n";
 class GenericConnection {
  public:
   explicit GenericConnection(const int fd) : fd_(fd) {
-    if (fd_ == -1) {
-      throw SocketAcceptException();
-    }
   }
 
   GenericConnection(GenericConnection&& rhs) : fd_(-1) {
@@ -162,7 +159,11 @@ class Socket final {
   GenericConnection Accept() const {
     sockaddr_in addr_client;
     socklen_t addr_client_length = sizeof(sockaddr_in);
-    return GenericConnection(accept(socket_, (struct sockaddr*)&addr_client, &addr_client_length));
+    const int fd = accept(socket_, (struct sockaddr*)&addr_client, &addr_client_length);
+    if (fd == -1) {
+      throw SocketAcceptException();
+    }
+    return GenericConnection(fd);
   }
 
  private:
