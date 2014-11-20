@@ -159,7 +159,7 @@ class Socket final {
     close(socket_);
   }
 
-  GenericConnection Accept() {
+  GenericConnection Accept() const {
     sockaddr_in addr_client;
     socklen_t addr_client_length = sizeof(sockaddr_in);
     return GenericConnection(accept(socket_, (struct sockaddr*)&addr_client, &addr_client_length));
