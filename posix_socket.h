@@ -18,7 +18,7 @@ const size_t kMaxQueuedConnections = 1024;
 const size_t kInitialHTTPHeaderSize = 1600;
 const double kHTTPHeaderSizeGrowthFactor = 1.95;
 
-// The separator is a blank line, via, http://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html
+// The separator is a blank line, via http://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html
 const char* kHTTPHeadBodySeparator = "\r\n\r\n";
 
 class GenericConnection {
