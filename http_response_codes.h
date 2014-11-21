@@ -52,7 +52,7 @@ enum class HTTPResponseCode : int {
 class HTTPResponseCodeAsStringGenerator {
  public:
   static std::string CodeAsString(HTTPResponseCode code) {
-    static std::map<int, std::string> codes = {
+    static const std::map<int, std::string> codes = {
         {100, "Continue"},
         {101, "Switching Protocols"},
         {200, "OK"},
@@ -94,7 +94,7 @@ class HTTPResponseCodeAsStringGenerator {
         {504, "Gateway Time-out"},
         {505, "HTTP Version not supported"},
     };
-    auto cit = codes.find(static_cast<int>(code));
+    const auto cit = codes.find(static_cast<int>(code));
     if (cit != codes.end()) {
       return cit->second;
     } else {
