@@ -16,12 +16,10 @@ typedef std::vector<std::pair<std::string, std::string>> HTTPHeadersType;
 class HTTPHeaderParser {
  public:
   const std::string& Method() const {
-    // TODO(dkorolev): Implement it.
     return method_;
   }
 
   const std::string& URL() const {
-    // TODO(dkorolev): Implement it.
     return url_;
   }
 
@@ -55,7 +53,7 @@ class HTTPHeaderParser {
 
  protected:
   // Parses HTTP headers. Extracts method, URL, and body, if provided.
-  // Can be statically overridden by proviging a different templated class to GenericHTTPConnection.
+  // Can be statically overridden by providing a different templated class as a parameter for GenericHTTPConnection.
   void ParseHTTPHeader(const GenericConnection& c) {
     // `buffer_` stores all the stream of data read from the socket, headers followed by optional body.
     size_t current_line_offset = 0;
@@ -82,8 +80,8 @@ class HTTPHeaderParser {
       buffer_[offset] = '\0';
       char* p = &buffer_[current_line_offset];
       char* current_line = p;
-      while (p = strstr(current_line, kCRLF)) {
-        *p = 0;
+      while ((p = strstr(current_line, kCRLF))) {
+        *p = '\0';
         if (!first_line_parsed) {
           if (*current_line) {
             // It's recommended by W3 to wait for the first line ignoring prior CRLF-s.
@@ -95,8 +93,9 @@ class HTTPHeaderParser {
               method_ = p1;
               char* p3 = strstr(p2, " ");
               if (p3) {
-                url_ = p2;
+                *p3 = '\0';
               }
+              url_ = p2;
             }
             first_line_parsed = true;
           }
@@ -135,13 +134,6 @@ class HTTPHeaderParser {
   }
 
  private:
-  std::string method_;
-  std::string url_;
-  std::map<std::string, std::string> headers_;
-  std::vector<char> buffer_ = std::vector<char>(kHTTPBufferInitialSize);
-  size_t content_offset_ = static_cast<size_t>(-1);
-  size_t content_length_ = static_cast<size_t>(-1);
-
   // HTTP buffer is used to store HTTP headers, and, if provided, HTTP body.
   const size_t kHTTPBufferInitialSize = 1600;
   const double kHTTPBufferGrowthFactor = 1.95;
@@ -152,6 +144,14 @@ class HTTPHeaderParser {
   const char* const kHeaderKeyValueSeparator = ": ";
   const size_t kHeaderKeyValueSeparatorLength = strlen(kHeaderKeyValueSeparator);
   const char* const kContentLengthHeaderKey = "Content-Length";
+
+ private:
+  std::string method_;
+  std::string url_;
+  std::map<std::string, std::string> headers_;
+  std::vector<char> buffer_ = std::vector<char>(kHTTPBufferInitialSize);
+  size_t content_offset_ = static_cast<size_t>(-1);
+  size_t content_length_ = static_cast<size_t>(-1);
 };
 
 template <typename HEADER_PARSER = HTTPHeaderParser>
@@ -159,11 +159,11 @@ class GenericHTTPConnection final : public GenericConnection, public HEADER_PARS
  public:
   typedef HEADER_PARSER T_HEADER_PARSER;
 
-  GenericHTTPConnection(GenericConnection&& c) : GenericConnection(std::move(c)) {
+  GenericHTTPConnection(GenericConnection&& c) : GenericConnection(std::move(c)), T_HEADER_PARSER() {
     T_HEADER_PARSER::ParseHTTPHeader(*this);
   }
 
-  GenericHTTPConnection(GenericHTTPConnection&& c) : GenericConnection(std::move(c)) {
+  GenericHTTPConnection(GenericHTTPConnection&& c) : GenericConnection(std::move(c)), T_HEADER_PARSER() {
     T_HEADER_PARSER::ParseHTTPHeader(*this);
   }
 

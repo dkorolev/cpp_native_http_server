@@ -21,7 +21,7 @@ int main() {
   while (true) {
     std::thread([](HTTPConnection c) {
                   std::ostringstream os;
-                  os << "BAZINGA\n" << c.Method() << ' ' << c.URL() << '\n';
+                  os << "BAZINGA\n" << c.Method() << "(" << c.URL() << ")\n";
                   if (c.HasBody()) {
                     os << c.Body() << '\n';
                   }
@@ -30,6 +30,6 @@ int main() {
                   std::this_thread::sleep_for(std::chrono::seconds(10));
                   std::cout << "Terminating the serving thread." << std::endl;
                 },
-                std::move(Connection(s.Accept()))).detach();
+                std::move(s.Accept())).detach();
   }
 }

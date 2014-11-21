@@ -22,7 +22,7 @@ int main() {
     HTTPConnection c(s.Accept());
     try {
       std::ostringstream os;
-      os << "BAZINGA\n" << c.Method() << ' ' << c.URL() << '\n';
+      os << "BAZINGA\n" << c.Method() << "(" << c.URL() << ")\n";
       if (c.HasBody()) {
         os << c.Body() << '\n';
       }

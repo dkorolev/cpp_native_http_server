@@ -3,6 +3,8 @@
 
 // HTTP codes: http://www.w3.org/Protocols/rfc2616/rfc2616-sec6.html
 
+#include <cstdint>
+
 enum class HTTPResponseCode : uint16_t {
   OK = 200,
 };

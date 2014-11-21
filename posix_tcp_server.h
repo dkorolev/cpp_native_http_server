@@ -1,8 +1,6 @@
 #ifndef TOY_POSIX_TCP_SERVER_H
 #define TOY_POSIX_TCP_SERVER_H
 
-#include <cstdio>
-
 #include "exceptions.h"
 
 #include <cassert>
