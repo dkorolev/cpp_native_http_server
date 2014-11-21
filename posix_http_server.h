@@ -4,6 +4,7 @@
 // HTTP message: http://www.w3.org/Protocols/rfc2616/rfc2616.html
 
 #include <map>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -12,6 +13,8 @@
 #include "http_response_codes.h"
 
 typedef std::vector<std::pair<std::string, std::string>> HTTPHeadersType;
+
+const char* const kDefaultContentType = "text/plain";
 
 class HTTPHeaderParser {
  public:
@@ -167,19 +170,24 @@ class GenericHTTPConnection final : public GenericConnection, public HEADER_PARS
     T_HEADER_PARSER::ParseHTTPHeader(*this);
   }
 
-  // TODO(dkorolev): Add Content-Type, with a default value.
   template <typename T>
   typename std::enable_if<sizeof(typename T::value_type) == 1>::type SendHTTPResponse(
       const T& begin,
       const T& end,
       HTTPResponseCode code = HTTPResponseCode::OK,
+      const std::string& content_type = kDefaultContentType,
       HTTPHeadersType extra_headers = HTTPHeadersType()) {
     if (responded_) {
       throw HTTPAttemptedToRespondTwiceException();
     }
     responded_ = true;
-    // TODO(dkorolev): Send HTTP response code.
-    // TODO(dkorolev): Send HTTP headers.
+    std::ostringstream os;
+    os << "HTTP/1.1 " << static_cast<int>(code) << " " << HTTPResponseCodeAsStringGenerator::CodeAsString(code)
+       << "\r\n"
+       << "Content-type: " << content_type << "\r\n"
+       << "Content-length: " << (end - begin) << "\r\n"
+       << "\r\n";
+    BlockingWrite(os.str());
     BlockingWrite(begin, end);
   }
 
@@ -187,8 +195,9 @@ class GenericHTTPConnection final : public GenericConnection, public HEADER_PARS
   typename std::enable_if<sizeof(typename T::value_type) == 1>::type SendHTTPResponse(
       const T& container,
       HTTPResponseCode code = HTTPResponseCode::OK,
+      const std::string& content_type = kDefaultContentType,
       HTTPHeadersType extra_headers = HTTPHeadersType()) {
-    SendHTTPResponse(container.begin(), container.end(), code);
+    SendHTTPResponse(container.begin(), container.end(), code, content_type, extra_headers);
   }
 
  private:
