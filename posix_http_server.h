@@ -28,7 +28,7 @@ class HTTPHeaderParser {
     return url_;
   }
 
-  const bool HasBody() const {
+  bool HasBody() const {
     return content_offset_ != static_cast<size_t>(-1) && content_length_ != static_cast<size_t>(-1);
   }
 
