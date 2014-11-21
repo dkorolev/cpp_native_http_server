@@ -18,6 +18,10 @@ const char* const kDefaultContentType = "text/plain";
 
 class HTTPHeaderParser {
  public:
+  HTTPHeaderParser(const int intial_buffer_size = 1600, const int buffer_growth_k = 1.95)
+      : buffer_(intial_buffer_size), buffer_growth_k_(buffer_growth_k) {
+  }
+
   const std::string& Method() const {
     return method_;
   }
@@ -78,7 +82,7 @@ class HTTPHeaderParser {
              read_count = c.BlockingRead(&buffer_[offset], chunk),
              offset += read_count,
              read_count == chunk) {
-        buffer_.resize(buffer_.size() * kHTTPBufferGrowthFactor);
+        buffer_.resize(buffer_.size() * buffer_growth_k_);
       }
       buffer_[offset] = '\0';
       char* p = &buffer_[current_line_offset];
@@ -137,10 +141,6 @@ class HTTPHeaderParser {
   }
 
  private:
-  // HTTP buffer is used to store HTTP headers, and, if provided, HTTP body.
-  const size_t kHTTPBufferInitialSize = 1600;
-  const double kHTTPBufferGrowthFactor = 1.95;
-
   // HTTP constants to parse the header and extract method, URL, headers and body.
   const char* const kCRLF = "\r\n";
   const size_t kCRLFLength = strlen(kCRLF);
@@ -152,7 +152,8 @@ class HTTPHeaderParser {
   std::string method_;
   std::string url_;
   std::map<std::string, std::string> headers_;
-  std::vector<char> buffer_ = std::vector<char>(kHTTPBufferInitialSize);
+  std::vector<char> buffer_;
+  const double buffer_growth_k_;
   size_t content_offset_ = static_cast<size_t>(-1);
   size_t content_length_ = static_cast<size_t>(-1);
 };
