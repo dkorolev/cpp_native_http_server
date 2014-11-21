@@ -10,7 +10,6 @@
 #include <vector>
 
 #include <arpa/inet.h>
-#include <fcntl.h>
 #include <unistd.h>
 
 const size_t kDefaultMaxLengthToReceive = 1024 * 1024;
@@ -18,10 +17,10 @@ const size_t kMaxQueuedConnections = 1024;
 
 class GenericConnection {
  public:
-  explicit GenericConnection(const int fd, bool async = false) : fd_(fd), async_(async) {
+  explicit GenericConnection(const int fd) : fd_(fd) {
   }
 
-  GenericConnection(GenericConnection&& rhs) : fd_(-1), async_(rhs.async_) {
+  GenericConnection(GenericConnection&& rhs) : fd_(-1) {
     std::swap(fd_, rhs.fd_);
   }
 
@@ -35,12 +34,6 @@ class GenericConnection {
   size_t BlockingRead(T* buffer, size_t max_length = kDefaultMaxLengthToReceive) const {
     const int read_length_or_error = read(fd_, reinterpret_cast<void*>(buffer), max_length * sizeof(T));
     if (read_length_or_error < 0) {
-      if (async_) {
-        if (read_length_or_error == -1 && errno == EAGAIN) {
-          // Special case to report that no new data is available.
-          return 0;
-        }
-      }
       throw SocketReadException();
     }
     return static_cast<size_t>(read_length_or_error);
@@ -73,7 +66,6 @@ class GenericConnection {
 
  private:
   int fd_;  // Non-const for move constructor.
-  const bool async_;
 
   GenericConnection(const GenericConnection&) = delete;
   void operator=(const GenericConnection&) = delete;
@@ -91,8 +83,7 @@ class Connection final : public GenericConnection {
 
 class Socket final {
  public:
-  explicit Socket(int port, int max_connections = kMaxQueuedConnections, bool async = false)
-      : socket_(socket(AF_INET, SOCK_STREAM, 0)), async_(async) {
+  explicit Socket(int port, int max_connections = kMaxQueuedConnections) : socket_(socket(AF_INET, SOCK_STREAM, 0)) {
     if (socket_ < 0) {
       throw SocketCreateException();
     }
@@ -127,21 +118,11 @@ class Socket final {
     if (fd == -1) {
       throw SocketAcceptException();
     }
-    if (async_) {
-      const int flags = fcntl(fd, F_GETFL, 0);
-      if (flags < 0) {
-        throw SocketFcntlException();
-      }
-      if (fcntl(fd, F_SETFL, flags | O_NONBLOCK)) {
-        throw SocketFcntlException();
-      }
-    }
     return GenericConnection(fd);
   }
 
  private:
   const int socket_;
-  const bool async_;
 
   Socket(const Socket&) = delete;
   Socket(Socket&&) = delete;
