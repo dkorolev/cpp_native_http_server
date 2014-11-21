@@ -14,8 +14,6 @@
 
 typedef std::vector<std::pair<std::string, std::string>> HTTPHeadersType;
 
-const char* const kDefaultContentType = "text/plain";
-
 class HTTPHeaderParser {
  public:
   HTTPHeaderParser(const int intial_buffer_size = 1600, const int buffer_growth_k = 1.95)
@@ -171,12 +169,16 @@ class GenericHTTPConnection final : public GenericConnection, public HEADER_PARS
     T_HEADER_PARSER::ParseHTTPHeader(*this);
   }
 
+  static const std::string DefaultContentType() {
+    return "text/plain";
+  }
+
   template <typename T>
   typename std::enable_if<sizeof(typename T::value_type) == 1>::type SendHTTPResponse(
       const T& begin,
       const T& end,
       HTTPResponseCode code = HTTPResponseCode::OK,
-      const std::string& content_type = kDefaultContentType,
+      const std::string& content_type = DefaultContentType(),
       const HTTPHeadersType& extra_headers = HTTPHeadersType()) {
     if (responded_) {
       throw HTTPAttemptedToRespondTwiceException();
@@ -199,7 +201,7 @@ class GenericHTTPConnection final : public GenericConnection, public HEADER_PARS
   typename std::enable_if<sizeof(typename T::value_type) == 1>::type SendHTTPResponse(
       const T& container,
       HTTPResponseCode code = HTTPResponseCode::OK,
-      const std::string& content_type = kDefaultContentType,
+      const std::string& content_type = DefaultContentType(),
       const HTTPHeadersType& extra_headers = HTTPHeadersType()) {
     SendHTTPResponse(container.begin(), container.end(), code, content_type, extra_headers);
   }
