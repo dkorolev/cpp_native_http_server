@@ -2,7 +2,7 @@
 
 /*
 # To test:
-telnet 0.0.0.0 8080
+telnet localhost 8080
 */
 
 #include <thread>
