@@ -177,7 +177,7 @@ class GenericHTTPConnection final : public GenericConnection, public HEADER_PARS
       const T& end,
       HTTPResponseCode code = HTTPResponseCode::OK,
       const std::string& content_type = kDefaultContentType,
-      HTTPHeadersType extra_headers = HTTPHeadersType()) {
+      const HTTPHeadersType& extra_headers = HTTPHeadersType()) {
     if (responded_) {
       throw HTTPAttemptedToRespondTwiceException();
     }
@@ -185,9 +185,12 @@ class GenericHTTPConnection final : public GenericConnection, public HEADER_PARS
     std::ostringstream os;
     os << "HTTP/1.1 " << static_cast<int>(code) << " " << HTTPResponseCodeAsStringGenerator::CodeAsString(code)
        << "\r\n"
-       << "Content-type: " << content_type << "\r\n"
-       << "Content-length: " << (end - begin) << "\r\n"
-       << "\r\n";
+       << "Content-Type: " << content_type << "\r\n"
+       << "Content-Length: " << (end - begin) << "\r\n";
+    for (const auto cit : extra_headers) {
+      os << cit.first << ": " << cit.second << "\r\n";
+    }
+    os << "\r\n";
     BlockingWrite(os.str());
     BlockingWrite(begin, end);
   }
@@ -197,7 +200,7 @@ class GenericHTTPConnection final : public GenericConnection, public HEADER_PARS
       const T& container,
       HTTPResponseCode code = HTTPResponseCode::OK,
       const std::string& content_type = kDefaultContentType,
-      HTTPHeadersType extra_headers = HTTPHeadersType()) {
+      const HTTPHeadersType& extra_headers = HTTPHeadersType()) {
     SendHTTPResponse(container.begin(), container.end(), code, content_type, extra_headers);
   }
 
