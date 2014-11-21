@@ -11,6 +11,7 @@ struct SocketCreateException : SocketException {};
 struct SocketBindException : SocketException {};
 struct SocketListenException : SocketException {};
 struct SocketAcceptException : SocketException {};
+struct SocketFcntlException : SocketException {};
 struct SocketReadException : SocketException {};
 struct SocketWriteException : SocketException {};
 struct SocketCouldNotWriteEverythingException : SocketWriteException {};

@@ -4,13 +4,15 @@
 # To test:
 curl localhost:8080
 curl -d DATA localhost:8080
+(echo -e "GET /\n\n" ; sleep 1) | telnet 0.0.0.0 8080  # telnet converts `\n` into `\r\n`.
+(echo -e "GET /\nContent-Length: 6\n\nPASSED; Ignored." ; sleep 1) | telnet 0.0.0.0 8080
 */
 
 #include <iostream>
 #include <sstream>
 #include <thread>
 
-#include "posix_socket.h"
+#include "posix_http_server.h"
 
 const int kPort = 8080;
 
