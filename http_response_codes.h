@@ -39,14 +39,14 @@ enum class HTTPResponseCode : int {
   RequestEntityTooLarge = 413,
   RequestURITooLarge = 414,
   UnsupportedMediaType = 415,
-  Requestedrangenotsatisfiable = 416,
+  RequestedRangeNotSatisfiable = 416,
   ExpectationFailed = 417,
   InternalServerError = 500,
   NotImplemented = 501,
   BadGateway = 502,
   ServiceUnavailable = 503,
   GatewayTimeout = 504,
-  HTTPVersionnotsupported = 505,
+  HTTPVersionNotSupported = 505,
 };
 
 class HTTPResponseCodeAsStringGenerator {
