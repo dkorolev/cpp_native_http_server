@@ -60,6 +60,13 @@ class HTTPHeaderParser {
   // Parses HTTP headers. Extracts method, URL, and body, if provided.
   // Can be statically overridden by providing a different templated class as a parameter for GenericHTTPConnection.
   void ParseHTTPHeader(const GenericConnection& c) {
+    // HTTP constants to parse the header and extract method, URL, headers and body.
+    const char* const kCRLF = "\r\n";
+    const size_t kCRLFLength = strlen(kCRLF);
+    const char* const kHeaderKeyValueSeparator = ": ";
+    const size_t kHeaderKeyValueSeparatorLength = strlen(kHeaderKeyValueSeparator);
+    const char* const kContentLengthHeaderKey = "Content-Length";
+
     // `buffer_` stores all the stream of data read from the socket, headers followed by optional body.
     size_t current_line_offset = 0;
 
@@ -137,14 +144,6 @@ class HTTPHeaderParser {
   void OnHeader(const char* key, const char* value) {
     headers_[key] = value;
   }
-
- private:
-  // HTTP constants to parse the header and extract method, URL, headers and body.
-  const char* const kCRLF = "\r\n";
-  const size_t kCRLFLength = strlen(kCRLF);
-  const char* const kHeaderKeyValueSeparator = ": ";
-  const size_t kHeaderKeyValueSeparatorLength = strlen(kHeaderKeyValueSeparator);
-  const char* const kContentLengthHeaderKey = "Content-Length";
 
  private:
   std::string method_;
