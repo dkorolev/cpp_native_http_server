@@ -1,7 +1,7 @@
 .PHONY: all indent clean check
 
 CPP=g++
-CPPFLAGS=-std=c++11 -g
+CPPFLAGS=-std=c++11 -g -Wall
 LDFLAGS=-pthread
 
 PWD=$(shell pwd)
@@ -11,7 +11,7 @@ BIN=$(SRC:%.cc=build/%)
 all: build ${BIN}
 
 indent:
-	find . -regextype posix-egrep -regex ".*\.(cc|h)" | xargs clang-format-3.5 -i
+	(find . -name "*.cc" ; find . -name "*.h") | xargs clang-format-3.5 -i
 
 clean:
 	rm -rf build

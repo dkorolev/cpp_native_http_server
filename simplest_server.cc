@@ -13,7 +13,7 @@ const int kPort = 8080;
 const int kMaxQueuedConnections = 1024;
 const int kMaxInputPacketSize = 1024 * 1024;
 
-const char* kHeadBodySeparator = "\r\n\r\n";  // TODO(dkorolev): Go through the RFC for HTTP and confirm this magic.
+const char* kHeadBodySeparator = "\r\n\r\n";
 
 int main() {
   const int sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -53,9 +53,7 @@ int main() {
       continue;
     }
 
-    // TODO(dkorolev): Note that this is a blocking call. It will keep all other requests waiting.
-    // Probably fine for the test implementation, where the input POST request is proxied by nginx.
-    // Should use epoll() for this code to really be production-ready.
+    // Note that this is a blocking call. It will keep all other requests waiting.
     const int length = read(fd, buffer, kMaxInputPacketSize);
     if (length < 0) {
       close(fd);
