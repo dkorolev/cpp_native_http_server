@@ -194,6 +194,7 @@ class GenericHTTPConnection final : public GenericConnection, public HEADER_PARS
     os << "\r\n";
     BlockingWrite(os.str());
     BlockingWrite(begin, end);
+    BlockingWrite("\r\n");
   }
 
   template <typename T>
